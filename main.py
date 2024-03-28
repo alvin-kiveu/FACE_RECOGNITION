@@ -1,5 +1,7 @@
 import cv2
 import time
+import numpy as np
+import hashlib
 
 # Function to detect faces in an image
 def detect_faces(image):
@@ -15,6 +17,20 @@ def detect_faces(image):
         cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
     
     return image, faces
+
+# Function to extract facial features from an image
+def extract_features(image, face):
+    # Extract the region of interest (face) from the image
+    (x, y, w, h) = face
+    face_roi = image[y:y+h, x:x+w]
+    
+    # Convert the face ROI to grayscale
+    gray_face = cv2.cvtColor(face_roi, cv2.COLOR_BGR2GRAY)
+    
+    # Compute hash of the grayscale face region
+    hash_value = hashlib.md5(gray_face).hexdigest()
+    
+    return hash_value
 
 # Main function to capture images from the camera, detect faces, and verify user
 def main():
@@ -42,17 +58,19 @@ def main():
         # Check for key press to capture image and verify user
         key = cv2.waitKey(1) & 0xFF
         if key == ord('c'):
-            if len(faces) == 1:  # Verify that only one face is detected
-                # Save the captured image
-                #GENRATE A UNIQUE NAME FOR EACH IMAGE
-                
+            if len(faces) == 1:  
+                # Save the captured image with a unique filename
                 timestamp = int(time.time())
                 image_path = "captured_image_{}.jpg".format(timestamp)
                 cv2.imwrite(image_path, detected_frame)
                 print("Captured image saved as:", image_path)
                 
+                # Verify that only one face is detected
+                features = extract_features(frame, faces[0])
+                print("Extracted features:", features)
+                
                 # Implement user verification logic here
-                # For example, you can use facial recognition or ask for user input
+                # For example, you can compare the hash value with a database
                 
                 # After verification, break the loop to stop capturing images
                 break
