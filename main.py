@@ -72,6 +72,7 @@ def main():
                 # Implement user verification logic here
                 # For example, you can compare the hash value with a database
                 
+                
                 # After verification, break the loop to stop capturing images
                 break
             else:
